@@ -1,0 +1,9 @@
+Package: se.nosskirneh.properlockgestures
+Name: ProperLockGestures
+Depends: mobilesubstrate
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: An awesome MobileSubstrate tweak!
+Maintainer: Andreas Henriksson
+Author: Andreas Henriksson
+Section: Tweaks

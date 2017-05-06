@@ -2,6 +2,14 @@
 - (void)_simulateLockButtonPress;
 @end
 
+
+static void handleTouches(NSSet *touches) {
+    NSUInteger numTaps = [[touches anyObject] tapCount];
+    if (numTaps == 2) {
+        [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
+    }
+}
+
 // LS Normal
 @interface SBPagedScrollView : UIScrollView
 @end
@@ -21,7 +29,6 @@
 %new
 - (void)handleTapGesture:(UITapGestureRecognizer *)sender {
     if (sender.state == UIGestureRecognizerStateRecognized) {
-        HBLogDebug(@"NORMAL LS/NC TAP");
         [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
     }
 }
@@ -47,38 +54,36 @@
 %new
 - (void)handleTapGesture:(UITapGestureRecognizer *)sender {
     if (sender.state == UIGestureRecognizerStateRecognized) {
-        HBLogDebug(@"LS NOTIF TAP");
         [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
     }
 }
 
 %end
+
+// Only works at background, not on the notification itself, perhaps add this as a setting later on
+// %hook NCNotificationListCollectionView
+
+// %new
+// - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+//     handleTouches(touches);
+// }
+
+// %end
 
 // LS media controls
-@interface SBDashBoardMediaControlsViewController : UIViewController
+@interface SBDashBoardMediaControlsView : UIView
 @end
 
-%hook SBDashBoardMediaControlsViewController
-
-- (void)viewDidLoad {
-    %orig;
-
-    // Add double tap gesture
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
-    tapGesture.numberOfTapsRequired = 2;
-    [self.view addGestureRecognizer:tapGesture];
-    [tapGesture release];
-}
+%hook SBDashBoardMediaControlsView
 
 %new
-- (void)handleTapGesture:(UITapGestureRecognizer *)sender {
-    if (sender.state == UIGestureRecognizerStateRecognized) {
-        HBLogDebug(@"LS MEDIA CTRLS TAP");
-        [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
-    }
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    handleTouches(touches);
 }
 
 %end
+
+// %end
 
 // LS Artwork
 // Add directly to artworkView doesn't work. Instead, create a new view and add that to artwork
@@ -135,7 +140,6 @@ static SBDashBoardMediaArtworkViewController *artworkViewController;
 %new
 - (void)handleTapGesture:(UITapGestureRecognizer *)sender {
     if (sender.state == UIGestureRecognizerStateRecognized) {
-        HBLogDebug(@"LS ARTWORK TAP");
         [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
     }
 }
@@ -143,54 +147,21 @@ static SBDashBoardMediaArtworkViewController *artworkViewController;
 %end
 
 // LS Passcode screen
-@interface SBDashBoardModalPresentationViewController : UIViewController
-@end
-
-%hook SBDashBoardModalPresentationViewController
-
-- (void)viewDidLoad {
-    %orig;
-
-    // Add double tap gesture
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
-    tapGesture.numberOfTapsRequired = 2;
-    [self.view addGestureRecognizer:tapGesture];
-    [tapGesture release];
-}
+%hook SBUIPasscodeLockViewWithKeypad
 
 %new
-- (void)handleTapGesture:(UITapGestureRecognizer *)sender {
-    if (sender.state == UIGestureRecognizerStateRecognized) {
-        HBLogDebug(@"LS PASSCODE TAP");
-        [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
-    }
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    handleTouches(touches);
 }
 
 %end
 
 // Home screen
-@interface SBHomeScreenViewController : UIViewController
-@end
-
-%hook SBHomeScreenViewController
-
-- (void)viewDidLoad {
-    %orig;
-
-    // Add double tap gesture
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
-    tapGesture.numberOfTapsRequired = 2;
-    [self.view addGestureRecognizer:tapGesture];
-
-    [tapGesture release];
-}
+%hook SBIconListView
 
 %new
-- (void)handleTapGesture:(UITapGestureRecognizer *)sender {
-    if (sender.state == UIGestureRecognizerStateRecognized) {
-        HBLogDebug(@"HOME TAP");
-        [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
-    }
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    handleTouches(touches);
 }
 
 %end

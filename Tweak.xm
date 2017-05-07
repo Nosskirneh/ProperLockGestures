@@ -1,3 +1,34 @@
+#define prefPath [NSString stringWithFormat:@"%@/Library/Preferences/%@", NSHomeDirectory(),@"se.nosskirneh.properlockgestures.plist"]
+
+static BOOL homescreenEnabled;
+static BOOL LSandNCEnabled;
+static BOOL notificationsEnabled;
+static BOOL passcodeEnabled;
+
+static void reloadPrefs() {
+    NSMutableDictionary *defaults = [NSMutableDictionary dictionary];
+    [defaults addEntriesFromDictionary:[NSDictionary dictionaryWithContentsOfFile:prefPath]];
+    homescreenEnabled = [[defaults objectForKey:@"Homescreen"] boolValue];
+    LSandNCEnabled = [[defaults objectForKey:@"Lockscreen"] boolValue];
+    notificationsEnabled = [[defaults objectForKey:@"Notifications"] boolValue];
+    passcodeEnabled = [[defaults objectForKey:@"Passcode"] boolValue];
+}
+
+void updateSettings(CFNotificationCenterRef center,
+                    void *observer,
+                    CFStringRef name,
+                    const void *object,
+                    CFDictionaryRef userInfo) {
+    reloadPrefs();
+}
+
+%ctor {
+    reloadPrefs();
+    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &updateSettings, CFStringRef(@"se.nosskirneh.properlockgestures/preferencesChanged"), NULL, 0);
+}
+
+
+
 @interface SpringBoard : NSObject
 - (void)_simulateLockButtonPress;
 @end
@@ -28,7 +59,7 @@ static void handleTouches(NSSet *touches) {
 
 %new
 - (void)handleTapGesture:(UITapGestureRecognizer *)sender {
-    if (sender.state == UIGestureRecognizerStateRecognized) {
+    if (LSandNCEnabled && sender.state == UIGestureRecognizerStateRecognized) {
         [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
     }
 }
@@ -53,22 +84,12 @@ static void handleTouches(NSSet *touches) {
 
 %new
 - (void)handleTapGesture:(UITapGestureRecognizer *)sender {
-    if (sender.state == UIGestureRecognizerStateRecognized) {
+    if (notificationsEnabled && sender.state == UIGestureRecognizerStateRecognized) {
         [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
     }
 }
 
 %end
-
-// Only works at background, not on the notification itself, perhaps add this as a setting later on
-// %hook NCNotificationListCollectionView
-
-// %new
-// - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-//     handleTouches(touches);
-// }
-
-// %end
 
 // LS media controls
 @interface SBDashBoardMediaControlsView : UIView
@@ -78,7 +99,9 @@ static void handleTouches(NSSet *touches) {
 
 %new
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    handleTouches(touches);
+    if (LSandNCEnabled) {
+        handleTouches(touches);
+    }
 }
 
 %end
@@ -139,7 +162,7 @@ static SBDashBoardMediaArtworkViewController *artworkViewController;
 
 %new
 - (void)handleTapGesture:(UITapGestureRecognizer *)sender {
-    if (sender.state == UIGestureRecognizerStateRecognized) {
+    if (LSandNCEnabled && sender.state == UIGestureRecognizerStateRecognized) {
         [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
     }
 }
@@ -151,7 +174,20 @@ static SBDashBoardMediaArtworkViewController *artworkViewController;
 
 %new
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    handleTouches(touches);
+    if (passcodeEnabled) {
+        handleTouches(touches);
+    }
+}
+
+%end
+
+%hook SBEmptyButtonView
+
+%new
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    if (passcodeEnabled) {
+        handleTouches(touches);
+    }
 }
 
 %end
@@ -161,7 +197,9 @@ static SBDashBoardMediaArtworkViewController *artworkViewController;
 
 %new
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    handleTouches(touches);
+    if (homescreenEnabled) {
+        handleTouches(touches);
+    }
 }
 
 %end

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>items</key>
+	<array>
+		<!-- Header -->
+        <dict>
+            <key>cell</key>
+            <string>PSGroupCell</string>
+            <key>headerCellClass</key>
+            <string>PLGHeaderCell</string>
+        </dict>
+
+
+		<!-- Switches -->
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Settings</string>
+		</dict>
+
+        <dict>
+            <key>cell</key>
+            <string>PSSwitchCell</string>
+            <key>cellClass</key>
+            <string>PLGSwitchTableCell</string>
+            <key>default</key>
+            <false/>
+            <key>defaults</key>
+            <string>se.nosskirneh.properlockgestures</string>
+            <key>key</key>
+            <string>Homescreen</string>
+            <key>label</key>
+            <string>Home screen</string>
+            <key>PostNotification</key>
+            <string>se.nosskirneh.properlockgestures/preferencesChanged</string>
+        </dict>
+
+        <dict>
+            <key>cell</key>
+            <string>PSSwitchCell</string>
+            <key>cellClass</key>
+            <string>PLGSwitchTableCell</string>
+            <key>default</key>
+            <false/>
+            <key>defaults</key>
+            <string>se.nosskirneh.properlockgestures</string>
+            <key>key</key>
+            <string>Lockscreen</string>
+            <key>label</key>
+            <string>LS and NC</string>
+            <key>PostNotification</key>
+            <string>se.nosskirneh.properlockgestures/preferencesChanged</string>
+        </dict>
+
+        <dict>
+            <key>cell</key>
+            <string>PSSwitchCell</string>
+            <key>cellClass</key>
+            <string>PLGSwitchTableCell</string>
+            <key>default</key>
+            <false/>
+            <key>defaults</key>
+            <string>se.nosskirneh.properlockgestures</string>
+            <key>key</key>
+            <string>Notifications</string>
+            <key>label</key>
+            <string>Notifications (LS)</string>
+            <key>PostNotification</key>
+            <string>se.nosskirneh.properlockgestures/preferencesChanged</string>
+        </dict>
+
+        <dict>
+            <key>cell</key>
+            <string>PSSwitchCell</string>
+            <key>cellClass</key>
+            <string>PLGSwitchTableCell</string>
+            <key>default</key>
+            <false/>
+            <key>defaults</key>
+            <string>se.nosskirneh.properlockgestures</string>
+            <key>key</key>
+            <string>Passcode</string>
+            <key>label</key>
+            <string>Passcode (LS)</string>
+            <key>PostNotification</key>
+            <string>se.nosskirneh.properlockgestures/preferencesChanged</string>
+        </dict>
+
+
+		<!-- About -->
+		<dict>
+            <key>cell</key>
+            <string>PSGroupCell</string>
+            <key>label</key>
+            <string>About</string>
+        </dict>
+        <dict>
+            <key>action</key>
+            <string>sendEmail</string>
+            <key>icon</key>
+            <string>mail.png</string>
+            <key>cell</key>
+            <string>PSButtonCell</string>
+            <key>label</key>
+            <string>Email me with issues</string>
+        </dict>
+        <dict>
+            <key>action</key>
+            <string>donate</string>
+            <key>cell</key>
+            <string>PSButtonCell</string>
+            <key>icon</key>
+            <string>donate.png</string>
+            <key>label</key>
+            <string>Support my work</string>
+        </dict>
+        <dict>
+            <key>action</key>
+            <string>sourceCode</string>
+            <key>cell</key>
+            <string>PSButtonCell</string>
+            <key>icon</key>
+            <string>github.png</string>
+            <key>label</key>
+            <string>Source code on GitHub</string>
+        </dict>
+        <dict>
+            <key>cell</key>
+            <string>PSGroupCell</string>
+            <key>footerAlignment</key>
+            <integer>1</integer>
+            <key>footerText</key>
+            <string>© 2017 Andreas Henriksson</string>
+        </dict>
+	</array>
+	<key>title</key>
+	<string></string>
+</dict>
+</plist>

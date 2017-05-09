@@ -41,7 +41,7 @@ static void handleTouches(NSSet *touches) {
     }
 }
 
-// LS Normal
+// LS/NC Normal
 @interface SBPagedScrollView : UIScrollView
 @end
 
@@ -55,6 +55,31 @@ static void handleTouches(NSSet *touches) {
     [tapGesture release];
 
     %orig;
+}
+
+%new
+- (void)handleTapGesture:(UITapGestureRecognizer *)sender {
+    if (LSandNCEnabled && sender.state == UIGestureRecognizerStateRecognized) {
+        [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
+    }
+}
+
+%end
+
+// LS Clock & Date
+@interface SBLockScreenDateViewController : UIViewController
+@end
+
+%hook SBLockScreenDateViewController
+
+- (void)viewDidLoad {
+    %orig;
+
+    // Add double tap gesture
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
+    tapGesture.numberOfTapsRequired = 2;
+    [self.view addGestureRecognizer:tapGesture];
+    [tapGesture release];
 }
 
 %new
@@ -106,11 +131,8 @@ static void handleTouches(NSSet *touches) {
 
 %end
 
-// %end
-
 // LS Artwork
 // Add directly to artworkView doesn't work. Instead, create a new view and add that to artwork
-
 @interface SBDashBoardMediaArtworkViewController : UIViewController
 - (void)addGestureView;
 @end
@@ -133,7 +155,8 @@ static SBDashBoardMediaArtworkViewController *artworkViewController;
     %orig;
 
     if (self == LSArtworkView && !gestureView) {
-        // If this would've gone directly to artworkViewController's viewDidLoad, LSArtworkView's frame is 0,0,0,0 by that time.
+        // If this would've gone directly to artworkViewController's viewDidLoad, 
+        // LSArtworkView's frame is 0, 0, 0, 0 by that time.
         [artworkViewController addGestureView];
     }
 }

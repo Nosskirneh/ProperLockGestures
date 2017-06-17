@@ -111,7 +111,7 @@
 
 @implementation PLGSwitchTableCell
 
--(id)initWithStyle:(int)style reuseIdentifier:(id)identifier specifier:(id)specifier {
+- (id)initWithStyle:(int)style reuseIdentifier:(id)identifier specifier:(id)specifier {
     self = [super initWithStyle:style reuseIdentifier:identifier specifier:specifier];
     if (self) {
         [((UISwitch *)[self control]) setOnTintColor:[UIColor colorWithRed:0.00 green:0.48 blue:1.00 alpha:1.0]];

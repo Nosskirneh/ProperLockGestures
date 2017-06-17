@@ -215,6 +215,35 @@ static SBDashBoardMediaArtworkViewController *artworkViewController;
 
 %end
 
+@interface SBDashBoardChargingViewController : UIViewController
+@end
+
+// LS Charging view
+%hook SBDashBoardChargingViewController
+
+- (void)loadView {
+    %orig;
+
+    UIView *gestureView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    [gestureView setBackgroundColor:[UIColor colorWithWhite:0 alpha:0.01]];
+
+    // Add double tap gesture
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
+    tapGesture.numberOfTapsRequired = 2;
+    [gestureView addGestureRecognizer:tapGesture];
+    [tapGesture release];
+
+    [self.view addSubview:gestureView];
+}
+
+%new
+- (void)handleTapGesture:(UITapGestureRecognizer *)sender {
+    if (LSandNCEnabled && sender.state == UIGestureRecognizerStateRecognized) {
+        [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
+    }
+}
+%end
+
 // Home screen
 %hook SBIconListView
 

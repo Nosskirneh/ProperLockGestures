@@ -8,10 +8,10 @@ static BOOL passcodeEnabled;
 static void reloadPrefs() {
     NSMutableDictionary *defaults = [NSMutableDictionary dictionary];
     [defaults addEntriesFromDictionary:[NSDictionary dictionaryWithContentsOfFile:prefPath]];
-    homescreenEnabled = [[defaults objectForKey:@"Homescreen"] boolValue];
-    LSandNCEnabled = [[defaults objectForKey:@"Lockscreen"] boolValue];
-    notificationsEnabled = [[defaults objectForKey:@"Notifications"] boolValue];
-    passcodeEnabled = [[defaults objectForKey:@"Passcode"] boolValue];
+    homescreenEnabled = defaults[@"Homescreen"] ? [defaults[@"Homescreen"] boolValue] : YES;
+    LSandNCEnabled = defaults[@"Lockscreen"] ? [defaults[@"Lockscreen"] boolValue] : YES;
+    notificationsEnabled = defaults[@"Notifications"] ? [defaults[@"Notifications"] boolValue] : YES;
+    passcodeEnabled = defaults[@"Passcode"] ? [defaults[@"Passcode"] boolValue] : YES;
 }
 
 void updateSettings(CFNotificationCenterRef center,

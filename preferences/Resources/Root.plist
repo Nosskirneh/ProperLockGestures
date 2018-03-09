@@ -27,7 +27,7 @@
             <key>cellClass</key>
             <string>PLGSwitchTableCell</string>
             <key>default</key>
-            <false/>
+            <true/>
             <key>defaults</key>
             <string>se.nosskirneh.properlockgestures</string>
             <key>key</key>
@@ -44,7 +44,7 @@
             <key>cellClass</key>
             <string>PLGSwitchTableCell</string>
             <key>default</key>
-            <false/>
+            <true/>
             <key>defaults</key>
             <string>se.nosskirneh.properlockgestures</string>
             <key>key</key>
@@ -61,7 +61,7 @@
             <key>cellClass</key>
             <string>PLGSwitchTableCell</string>
             <key>default</key>
-            <false/>
+            <true/>
             <key>defaults</key>
             <string>se.nosskirneh.properlockgestures</string>
             <key>key</key>
@@ -78,7 +78,7 @@
             <key>cellClass</key>
             <string>PLGSwitchTableCell</string>
             <key>default</key>
-            <false/>
+            <true/>
             <key>defaults</key>
             <string>se.nosskirneh.properlockgestures</string>
             <key>key</key>

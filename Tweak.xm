@@ -1,4 +1,4 @@
-#define prefPath [NSString stringWithFormat:@"%@/Library/Preferences/%@", NSHomeDirectory(),@"se.nosskirneh.properlockgestures.plist"]
+#define prefPath [NSString stringWithFormat:@"%@/Library/Preferences/%@", NSHomeDirectory(), @"se.nosskirneh.properlockgestures.plist"]
 
 static BOOL homescreenEnabled;
 static BOOL LSandNCEnabled;
@@ -22,12 +22,6 @@ void updateSettings(CFNotificationCenterRef center,
     reloadPrefs();
 }
 
-%ctor {
-    reloadPrefs();
-    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &updateSettings, CFStringRef(@"se.nosskirneh.properlockgestures/preferencesChanged"), NULL, 0);
-}
-
-
 
 @interface SpringBoard : NSObject
 - (void)_simulateLockButtonPress;
@@ -41,21 +35,34 @@ static void handleTouches(NSSet *touches) {
     }
 }
 
+static void addGesture(id self, UIView *target) {
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
+    tapGesture.numberOfTapsRequired = 2;
+    [target addGestureRecognizer:tapGesture];
+    [tapGesture release];
+}
+
 // LS/NC Normal
 @interface SBPagedScrollView : UIScrollView
 @end
 
 %hook SBPagedScrollView
 
+%group iOS10LS
 - (void)_layoutPages {
-    // Add double tap gesture
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
-    tapGesture.numberOfTapsRequired = 2;
-    [self addGestureRecognizer:tapGesture];
-    [tapGesture release];
+    addGesture(self, self);
 
     %orig;
 }
+%end
+
+%group iOS11LS
+- (void)layoutPages {
+    addGesture(self, self);
+
+    %orig;
+}
+%end
 
 %new
 - (void)handleTapGesture:(UITapGestureRecognizer *)sender {
@@ -75,11 +82,7 @@ static void handleTouches(NSSet *touches) {
 - (void)viewDidLoad {
     %orig;
 
-    // Add double tap gesture
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
-    tapGesture.numberOfTapsRequired = 2;
-    [self.view addGestureRecognizer:tapGesture];
-    [tapGesture release];
+    addGesture(self, self.view);
 }
 
 %new
@@ -100,11 +103,7 @@ static void handleTouches(NSSet *touches) {
 - (void)viewDidLoad {
     %orig;
 
-    // Add double tap gesture
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
-    tapGesture.numberOfTapsRequired = 2;
-    [self.view addGestureRecognizer:tapGesture];
-    [tapGesture release];
+    addGesture(self, self.view);
 }
 
 %new
@@ -131,6 +130,8 @@ static void handleTouches(NSSet *touches) {
 
 %end
 
+
+%group iOS10
 // LS Artwork
 // Add directly to artworkView doesn't work. Instead, create a new view and add that to artwork
 @interface SBDashBoardMediaArtworkViewController : UIViewController
@@ -174,12 +175,7 @@ static SBDashBoardMediaArtworkViewController *artworkViewController;
     gestureView = [[UIView alloc] initWithFrame:LSArtworkView.frame];
     [gestureView setBackgroundColor:[UIColor colorWithWhite:0 alpha:0.01]];
 
-    // Add double tap gesture
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
-    tapGesture.numberOfTapsRequired = 2;
-    [gestureView addGestureRecognizer:tapGesture];
-    [tapGesture release];
-
+    addGesture(self, gestureView);
     [self.view addSubview:gestureView];
 }
 
@@ -190,6 +186,7 @@ static SBDashBoardMediaArtworkViewController *artworkViewController;
     }
 }
 
+%end
 %end
 
 // LS Passcode screen
@@ -227,12 +224,7 @@ static SBDashBoardMediaArtworkViewController *artworkViewController;
     UIView *gestureView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
     [gestureView setBackgroundColor:[UIColor colorWithWhite:0 alpha:0.01]];
 
-    // Add double tap gesture
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
-    tapGesture.numberOfTapsRequired = 2;
-    [gestureView addGestureRecognizer:tapGesture];
-    [tapGesture release];
-
+    addGesture(self, gestureView);
     [self.view addSubview:gestureView];
 }
 
@@ -255,3 +247,20 @@ static SBDashBoardMediaArtworkViewController *artworkViewController;
 }
 
 %end
+
+
+
+%ctor {
+    reloadPrefs();
+    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &updateSettings, CFStringRef(@"se.nosskirneh.properlockgestures/preferencesChanged"), NULL, 0);
+
+    %init;
+
+    if ([%c(SBPagedScrollView) instancesRespondToSelector:@selector(_layoutPages)])
+        %init(iOS10LS);
+    else if ([%c(SBPagedScrollView) instancesRespondToSelector:@selector(layoutPages)])
+        %init(iOS11LS);
+
+    if (%c(SBDashBoardMediaArtworkViewController))
+        %init(iOS10);
+}

@@ -1,5 +1,7 @@
 #import <Preferences/Preferences.h>
-#define prefPath [NSString stringWithFormat:@"%@/Library/Preferences/%@", NSHomeDirectory(), @"se.nosskirneh.properlockgestures.plist"]
+#import "../../TwitterStuff/Prompt.h"
+
+#define kPrefPath [NSString stringWithFormat:@"%@/Library/Preferences/%@", NSHomeDirectory(), @"se.nosskirneh.properlockgestures.plist"]
 
 @interface ProperLockGesturesRootListController : PSListController
 @end
@@ -7,35 +9,43 @@
 @implementation ProperLockGesturesRootListController
 
 - (NSArray *)specifiers {
-	if (!_specifiers) {
-		_specifiers = [[self loadSpecifiersFromPlistName:@"Root" target:self] retain];
-	}
+    if (!_specifiers)
+        _specifiers = [self loadSpecifiersFromPlistName:@"Root" target:self];
 
-	return _specifiers;
+    return _specifiers;
+}
+
+- (void)loadView {
+    [super loadView];
+    presentFollowAlert(kPrefPath, self);
 }
 
 - (id)readPreferenceValue:(PSSpecifier*)specifier {
-    NSDictionary *preferences = [NSDictionary dictionaryWithContentsOfFile:prefPath];
+    NSDictionary *preferences = [NSDictionary dictionaryWithContentsOfFile:kPrefPath];
 
     NSString *key = [specifier propertyForKey:@"key"];
-    if (!preferences[key]) {
+    if (!preferences[key])
         return specifier.properties[@"default"];
-    }
 
     return preferences[key];
 }
 
-- (void)setPreferenceValue:(id)value specifier:(PSSpecifier *)specifier {    
-    NSMutableDictionary *defaults = [NSMutableDictionary dictionary];
-    [defaults addEntriesFromDictionary:[NSDictionary dictionaryWithContentsOfFile:prefPath]];
-    [defaults setObject:value forKey:specifier.properties[@"key"]];
-    [defaults writeToFile:prefPath atomically:YES];
-    CFStringRef post = (CFStringRef)CFBridgingRetain(specifier.properties[@"PostNotification"]);
+- (void)setPreferenceValue:(id)value specifier:(PSSpecifier *)specifier {
+    NSString *prefPath = kPrefPath;
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithContentsOfFile:prefPath];
+    if (!dictionary)
+        dictionary = [NSMutableDictionary dictionary];
+
+    NSDictionary *properties = specifier.properties;
+
+    [dictionary setObject:value forKey:properties[@"key"]];
+    [dictionary writeToFile:prefPath atomically:YES];
+    CFStringRef post = (CFStringRef)CFBridgingRetain(properties[@"PostNotification"]);
     CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), post, NULL, NULL, YES);
 }
 
 - (void)donate {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://paypal.me/nosskirneh"]];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://paypal.me/aNosskirneh"]];
 }
 
 - (void)sendEmail {
@@ -113,9 +123,8 @@
 
 - (id)initWithStyle:(int)style reuseIdentifier:(id)identifier specifier:(id)specifier {
     self = [super initWithStyle:style reuseIdentifier:identifier specifier:specifier];
-    if (self) {
+    if (self)
         [((UISwitch *)[self control]) setOnTintColor:[UIColor colorWithRed:0.00 green:0.48 blue:1.00 alpha:1.0]];
-    }
     return self;
 }
 

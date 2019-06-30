@@ -30,16 +30,14 @@ void updateSettings(CFNotificationCenterRef center,
 
 static void handleTouches(NSSet *touches) {
     NSUInteger numTaps = [[touches anyObject] tapCount];
-    if (numTaps == 2) {
+    if (numTaps == 2)
         [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
-    }
 }
 
 static void addGesture(id self, UIView *target) {
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
     tapGesture.numberOfTapsRequired = 2;
     [target addGestureRecognizer:tapGesture];
-    [tapGesture release];
 }
 
 // LS/NC Normal
@@ -66,9 +64,8 @@ static void addGesture(id self, UIView *target) {
 
 %new
 - (void)handleTapGesture:(UITapGestureRecognizer *)sender {
-    if (LSandNCEnabled && sender.state == UIGestureRecognizerStateRecognized) {
+    if (LSandNCEnabled && sender.state == UIGestureRecognizerStateRecognized)
         [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
-    }
 }
 
 %end
@@ -87,9 +84,8 @@ static void addGesture(id self, UIView *target) {
 
 %new
 - (void)handleTapGesture:(UITapGestureRecognizer *)sender {
-    if (LSandNCEnabled && sender.state == UIGestureRecognizerStateRecognized) {
+    if (LSandNCEnabled && sender.state == UIGestureRecognizerStateRecognized)
         [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
-    }
 }
 
 %end
@@ -108,9 +104,8 @@ static void addGesture(id self, UIView *target) {
 
 %new
 - (void)handleTapGesture:(UITapGestureRecognizer *)sender {
-    if (notificationsEnabled && sender.state == UIGestureRecognizerStateRecognized) {
+    if (notificationsEnabled && sender.state == UIGestureRecognizerStateRecognized)
         [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
-    }
 }
 
 %end
@@ -123,9 +118,8 @@ static void addGesture(id self, UIView *target) {
 
 %new
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (LSandNCEnabled) {
+    if (LSandNCEnabled)
         handleTouches(touches);
-    }
 }
 
 %end
@@ -181,9 +175,8 @@ static SBDashBoardMediaArtworkViewController *artworkViewController;
 
 %new
 - (void)handleTapGesture:(UITapGestureRecognizer *)sender {
-    if (LSandNCEnabled && sender.state == UIGestureRecognizerStateRecognized) {
+    if (LSandNCEnabled && sender.state == UIGestureRecognizerStateRecognized)
         [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
-    }
 }
 
 %end
@@ -194,9 +187,8 @@ static SBDashBoardMediaArtworkViewController *artworkViewController;
 
 %new
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (passcodeEnabled) {
+    if (passcodeEnabled)
         handleTouches(touches);
-    }
 }
 
 %end
@@ -205,9 +197,8 @@ static SBDashBoardMediaArtworkViewController *artworkViewController;
 
 %new
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (passcodeEnabled) {
+    if (passcodeEnabled)
         handleTouches(touches);
-    }
 }
 
 %end
@@ -230,9 +221,8 @@ static SBDashBoardMediaArtworkViewController *artworkViewController;
 
 %new
 - (void)handleTapGesture:(UITapGestureRecognizer *)sender {
-    if (LSandNCEnabled && sender.state == UIGestureRecognizerStateRecognized) {
+    if (LSandNCEnabled && sender.state == UIGestureRecognizerStateRecognized)
         [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
-    }
 }
 %end
 
@@ -241,9 +231,8 @@ static SBDashBoardMediaArtworkViewController *artworkViewController;
 
 %new
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (homescreenEnabled) {
+    if (homescreenEnabled)
         handleTouches(touches);
-    }
 }
 
 %end

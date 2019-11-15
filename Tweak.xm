@@ -34,7 +34,6 @@ void updateSettings(CFNotificationCenterRef center,
 - (void)_simulateLockButtonPress;
 @end
 
-
 static void simulatePress() {
     [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
 }
@@ -46,32 +45,14 @@ static void handleTouches(NSSet *touches) {
 }
 
 static void addGesture(id self, UIView *target) {
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                                 action:@selector(handleTapGesture:)];
     tapGesture.numberOfTapsRequired = 2;
     [target addGestureRecognizer:tapGesture];
 }
 
 // LS/NC Normal
-@interface SBPagedScrollView : UIScrollView
-@end
-
-%hook SBPagedScrollView
-
-%group iOS10LS
-- (void)_layoutPages {
-    addGesture(self, self);
-
-    %orig;
-}
-%end
-
-%group iOS11LS
-- (void)layoutPages {
-    addGesture(self, self);
-
-    %orig;
-}
-%end
+%hook PagedScrollView
 
 %new
 - (void)handleTapGesture:(UITapGestureRecognizer *)sender {
@@ -81,16 +62,37 @@ static void addGesture(id self, UIView *target) {
 
 %end
 
-// LS Clock & Date
-@interface SBLockScreenDateViewController : UIViewController
-@end
+%group iOS10LS
+    %hook PagedScrollView
+    - (void)_layoutPages {
+        UIScrollView *_self = (UIScrollView *)self;
+        addGesture(_self, _self);
 
-%hook SBLockScreenDateViewController
+        %orig;
+    }
+    %end
+%end
+
+%group iOS11LS
+    %hook PagedScrollView
+    - (void)layoutPages {
+        UIScrollView *_self = (UIScrollView *)self;
+        addGesture(_self, _self);
+
+        %orig;
+    }
+    %end
+%end
+
+
+// LS Clock & Date
+%hook LockScreenDateViewController
 
 - (void)viewDidLoad {
     %orig;
 
-    addGesture(self, self.view);
+    UIViewController *_self = (UIViewController *)self;
+    addGesture(_self, _self.view);
 }
 
 %new
@@ -124,10 +126,7 @@ static void addGesture(id self, UIView *target) {
 %end
 
 // LS media controls
-@interface SBDashBoardMediaControlsView : UIView
-@end
-
-%hook SBDashBoardMediaControlsView
+%hook MediaControlsView
 
 %new
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -215,11 +214,8 @@ static void addGesture(id self, UIView *target) {
 
 %end
 
-@interface SBDashBoardChargingViewController : UIViewController
-@end
-
 // LS Charging view
-%hook SBDashBoardChargingViewController
+%hook ChargingViewController
 
 - (void)loadView {
     %orig;
@@ -228,7 +224,7 @@ static void addGesture(id self, UIView *target) {
     [gestureView setBackgroundColor:[UIColor colorWithWhite:0 alpha:0.01]];
 
     addGesture(self, gestureView);
-    [self.view addSubview:gestureView];
+    [((UIViewController *)self).view addSubview:gestureView];
 }
 
 %new
@@ -255,13 +251,32 @@ static void addGesture(id self, UIView *target) {
     reloadPrefs();
     CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &updateSettings, CFStringRef(@"se.nosskirneh.properlockgestures/preferencesChanged"), NULL, 0);
 
-    %init;
+    Class pagedScrollViewClass = %c(SBFPagedScrollView);
+    if (!pagedScrollViewClass)
+        pagedScrollViewClass = %c(SBPagedScrollView);
 
-    if ([%c(SBPagedScrollView) instancesRespondToSelector:@selector(_layoutPages)])
-        %init(iOS10LS);
-    else if ([%c(SBPagedScrollView) instancesRespondToSelector:@selector(layoutPages)])
-        %init(iOS11LS);
+    Class dateViewControllerClass = %c(SBFLockScreenDateViewController);
+    if (!dateViewControllerClass)
+        dateViewControllerClass = %c(SBLockScreenDateViewController);
 
+    Class mediaControlsViewClass = %c(CSMediaControlsView);
+    if (!mediaControlsViewClass)
+        mediaControlsViewClass = %c(SBDashBoardMediaControlsView);
+
+    Class chargingViewControllerClass = %c(CSChargingViewController);
+    if (!chargingViewControllerClass)
+        chargingViewControllerClass = %c(SBDashBoardChargingViewController);
+    %init(PagedScrollView = pagedScrollViewClass,
+          LockScreenDateViewController = dateViewControllerClass,
+          MediaControlsView = mediaControlsViewClass,
+          ChargingViewController = chargingViewControllerClass);
+
+    if ([pagedScrollViewClass instancesRespondToSelector:@selector(_layoutPages)])
+        %init(iOS10LS, PagedScrollView = pagedScrollViewClass);
+    else if ([pagedScrollViewClass instancesRespondToSelector:@selector(layoutPages)])
+        %init(iOS11LS, PagedScrollView = pagedScrollViewClass); // iOS 12 and 13 too
+
+    // Old stuff, not used on iOS 11 and later
     if (%c(SBDashBoardMediaArtworkViewController))
         %init(iOS10);
 

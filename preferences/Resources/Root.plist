@@ -19,6 +19,10 @@
             <string>PSGroupCell</string>
             <key>label</key>
             <string>Settings</string>
+            <key>footerAlignment</key>
+            <integer>0</integer>
+            <key>footerText</key>
+            <string>All settings require a respring to take effect.</string>
         </dict>
 
         <dict>
@@ -34,8 +38,6 @@
             <string>Homescreen</string>
             <key>label</key>
             <string>Home screen</string>
-            <key>PostNotification</key>
-            <string>se.nosskirneh.properlockgestures/preferencesChanged</string>
         </dict>
 
         <dict>
@@ -51,8 +53,6 @@
             <string>Lockscreen</string>
             <key>label</key>
             <string>LS and NC</string>
-            <key>PostNotification</key>
-            <string>se.nosskirneh.properlockgestures/preferencesChanged</string>
         </dict>
 
         <dict>
@@ -68,8 +68,6 @@
             <string>Notifications</string>
             <key>label</key>
             <string>Notifications (LS)</string>
-            <key>PostNotification</key>
-            <string>se.nosskirneh.properlockgestures/preferencesChanged</string>
         </dict>
 
         <dict>
@@ -85,8 +83,6 @@
             <string>Passcode</string>
             <key>label</key>
             <string>Passcode (LS)</string>
-            <key>PostNotification</key>
-            <string>se.nosskirneh.properlockgestures/preferencesChanged</string>
         </dict>
 
 

@@ -40,8 +40,6 @@
 
     [dictionary setObject:value forKey:properties[@"key"]];
     [dictionary writeToFile:prefPath atomically:YES];
-    CFStringRef post = (CFStringRef)CFBridgingRetain(properties[@"PostNotification"]);
-    CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), post, NULL, NULL, YES);
 }
 
 - (void)donate {

@@ -6,12 +6,19 @@ static BOOL notificationsEnabled;
 static BOOL passcodeEnabled;
 
 static void reloadPrefs() {
-    NSMutableDictionary *defaults = [NSMutableDictionary dictionary];
-    [defaults addEntriesFromDictionary:[NSDictionary dictionaryWithContentsOfFile:prefPath]];
-    homescreenEnabled = defaults[@"Homescreen"] ? [defaults[@"Homescreen"] boolValue] : YES;
-    LSandNCEnabled = defaults[@"Lockscreen"] ? [defaults[@"Lockscreen"] boolValue] : YES;
-    notificationsEnabled = defaults[@"Notifications"] ? [defaults[@"Notifications"] boolValue] : YES;
-    passcodeEnabled = defaults[@"Passcode"] ? [defaults[@"Passcode"] boolValue] : YES;
+    NSDictionary *prefs = [NSDictionary dictionaryWithContentsOfFile:prefPath];
+
+    NSNumber *current = prefs[@"Homescreen"];
+    homescreenEnabled = current ? [current boolValue] : YES;
+
+    current = prefs[@"Lockscreen"];
+    LSandNCEnabled = current ? [current boolValue] : YES;
+
+    current = prefs[@"Notifications"];
+    notificationsEnabled = current ? [current boolValue] : YES;
+
+    current = prefs[@"Passcode"];
+    passcodeEnabled = current ? [current boolValue] : YES;
 }
 
 void updateSettings(CFNotificationCenterRef center,
@@ -28,10 +35,14 @@ void updateSettings(CFNotificationCenterRef center,
 @end
 
 
+static void simulatePress() {
+    [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
+}
+
 static void handleTouches(NSSet *touches) {
     NSUInteger numTaps = [[touches anyObject] tapCount];
     if (numTaps == 2)
-        [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
+        simulatePress();
 }
 
 static void addGesture(id self, UIView *target) {
@@ -65,7 +76,7 @@ static void addGesture(id self, UIView *target) {
 %new
 - (void)handleTapGesture:(UITapGestureRecognizer *)sender {
     if (LSandNCEnabled && sender.state == UIGestureRecognizerStateRecognized)
-        [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
+        simulatePress();
 }
 
 %end
@@ -85,7 +96,7 @@ static void addGesture(id self, UIView *target) {
 %new
 - (void)handleTapGesture:(UITapGestureRecognizer *)sender {
     if (LSandNCEnabled && sender.state == UIGestureRecognizerStateRecognized)
-        [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
+        simulatePress();
 }
 
 %end
@@ -94,20 +105,22 @@ static void addGesture(id self, UIView *target) {
 @interface NCNotificationPriorityListViewController : UIViewController
 @end
 
-%hook NCNotificationPriorityListViewController
+%group oldNC
+    %hook NCNotificationPriorityListViewController
 
-- (void)viewDidLoad {
-    %orig;
+    - (void)viewDidLoad {
+        %orig;
 
-    addGesture(self, self.view);
-}
+        addGesture(self, self.view);
+    }
 
-%new
-- (void)handleTapGesture:(UITapGestureRecognizer *)sender {
-    if (notificationsEnabled && sender.state == UIGestureRecognizerStateRecognized)
-        [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
-}
+    %new
+    - (void)handleTapGesture:(UITapGestureRecognizer *)sender {
+        if (notificationsEnabled && sender.state == UIGestureRecognizerStateRecognized)
+            simulatePress();
+    }
 
+    %end
 %end
 
 // LS media controls
@@ -126,60 +139,59 @@ static void addGesture(id self, UIView *target) {
 
 
 %group iOS10
-// LS Artwork
-// Add directly to artworkView doesn't work. Instead, create a new view and add that to artwork
-@interface SBDashBoardMediaArtworkViewController : UIViewController
-- (void)addGestureView;
-@end
+    // LS Artwork
+    // Add directly to artworkView doesn't work. Instead, create a new view and add that to artwork
+    @interface SBDashBoardMediaArtworkViewController : UIViewController
+    - (void)addGestureView;
+    @end
 
-@interface MPUNowPlayingArtworkView : UIView
-@end
+    @interface MPUNowPlayingArtworkView : UIView
+    @end
 
-static MPUNowPlayingArtworkView *LSArtworkView;
-static UIView *gestureView;
-static SBDashBoardMediaArtworkViewController *artworkViewController;
+    static MPUNowPlayingArtworkView *LSArtworkView;
+    static UIView *gestureView;
+    static SBDashBoardMediaArtworkViewController *artworkViewController;
 
-%hook MPUNowPlayingArtworkView
+    %hook MPUNowPlayingArtworkView
 
-- (id)initWithFrame:(CGRect)frame {
-    // We only want the first that gets initalized (LS)
-    return LSArtworkView ? %orig : LSArtworkView = %orig;
-}
+    - (id)initWithFrame:(CGRect)frame {
+        // We only want the first that gets initalized (LS)
+        return LSArtworkView ? %orig : LSArtworkView = %orig;
+    }
 
-- (void)setFrame:(CGRect)frame {
-    %orig;
+    - (void)setFrame:(CGRect)frame {
+        %orig;
 
-    if (self == LSArtworkView && !gestureView) {
         // If this would've gone directly to artworkViewController's viewDidLoad, 
         // LSArtworkView's frame is 0, 0, 0, 0 by that time.
-        [artworkViewController addGestureView];
+        if (self == LSArtworkView && !gestureView)
+            [artworkViewController addGestureView];
     }
-}
 
-%end
+    %end
 
-%hook SBDashBoardMediaArtworkViewController
+    %hook SBDashBoardMediaArtworkViewController
 
-- (id)init {
-    return artworkViewController = %orig;
-}
+    - (id)init {
+        return artworkViewController = %orig;
+    }
 
-%new
-- (void)addGestureView {
-    gestureView = [[UIView alloc] initWithFrame:LSArtworkView.frame];
-    [gestureView setBackgroundColor:[UIColor colorWithWhite:0 alpha:0.01]];
+    %new
+    - (void)addGestureView {
+        gestureView = [[UIView alloc] initWithFrame:LSArtworkView.frame];
+        [gestureView setBackgroundColor:[UIColor colorWithWhite:0 alpha:0.01]];
 
-    addGesture(self, gestureView);
-    [self.view addSubview:gestureView];
-}
+        addGesture(self, gestureView);
+        [self.view addSubview:gestureView];
+    }
 
-%new
-- (void)handleTapGesture:(UITapGestureRecognizer *)sender {
-    if (LSandNCEnabled && sender.state == UIGestureRecognizerStateRecognized)
-        [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
-}
+    %new
+    - (void)handleTapGesture:(UITapGestureRecognizer *)sender {
+        if (LSandNCEnabled && sender.state == UIGestureRecognizerStateRecognized)
+            simulatePress();
+    }
 
-%end
+    %end
 %end
 
 // LS Passcode screen
@@ -222,7 +234,7 @@ static SBDashBoardMediaArtworkViewController *artworkViewController;
 %new
 - (void)handleTapGesture:(UITapGestureRecognizer *)sender {
     if (LSandNCEnabled && sender.state == UIGestureRecognizerStateRecognized)
-        [((SpringBoard *)[%c(SpringBoard) sharedApplication]) _simulateLockButtonPress];
+        simulatePress();
 }
 %end
 
@@ -252,4 +264,7 @@ static SBDashBoardMediaArtworkViewController *artworkViewController;
 
     if (%c(SBDashBoardMediaArtworkViewController))
         %init(iOS10);
+
+    if (%c(NCNotificationPriorityListViewController))
+        %init(oldNC);
 }

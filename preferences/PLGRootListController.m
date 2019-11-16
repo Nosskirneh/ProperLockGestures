@@ -72,12 +72,11 @@
         
         _headerLabel = [[UILabel alloc] init];
         [_headerLabel setText:@"ProperLockGestures"];
-        [_headerLabel setTextColor:[UIColor blackColor]];
         [_headerLabel setFont:font];
         
         _subheaderLabel = [[UILabel alloc] init];
         [_subheaderLabel setText:@"by Andreas Henriksson"];
-        [_subheaderLabel setTextColor:[UIColor grayColor]];
+        [_subheaderLabel setTextColor:UIColor.grayColor];
         [_subheaderLabel setFont:[font fontWithSize:17]];
         
         [self addSubview:_headerLabel];

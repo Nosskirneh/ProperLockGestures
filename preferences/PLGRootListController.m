@@ -3,10 +3,10 @@
 
 #define kPrefPath [NSString stringWithFormat:@"%@/Library/Preferences/%@", NSHomeDirectory(), @"se.nosskirneh.properlockgestures.plist"]
 
-@interface ProperLockGesturesRootListController : PSListController
+@interface PLGRootListController : PSListController
 @end
 
-@implementation ProperLockGesturesRootListController
+@implementation PLGRootListController
 
 - (NSArray *)specifiers {
     if (!_specifiers)

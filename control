@@ -1,7 +1,7 @@
 Package: se.nosskirneh.properlockgestures
 Name: ProperLockGestures
 Depends: mobilesubstrate
-Version: 0.0.9
+Version: 0.0.10
 Architecture: iphoneos-arm
 Description: Double tap to lock
 Depiction: https://henrikssonbrothers.com/cydia/repo/depictions/?p=se.nosskirneh.properlockgestures

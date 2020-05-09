@@ -96,8 +96,6 @@
         <dict>
             <key>action</key>
             <string>sendEmail</string>
-            <key>icon</key>
-            <string>mail.png</string>
             <key>cell</key>
             <string>PSButtonCell</string>
             <key>label</key>
@@ -108,8 +106,6 @@
             <string>donate</string>
             <key>cell</key>
             <string>PSButtonCell</string>
-            <key>icon</key>
-            <string>donate.png</string>
             <key>label</key>
             <string>Support my work</string>
         </dict>
@@ -118,8 +114,6 @@
             <string>sourceCode</string>
             <key>cell</key>
             <string>PSButtonCell</string>
-            <key>icon</key>
-            <string>github.png</string>
             <key>label</key>
             <string>Source code on GitHub</string>
         </dict>

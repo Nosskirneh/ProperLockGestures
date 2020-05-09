@@ -44,6 +44,10 @@
     notify_post(kSettingsChanged);
 }
 
+- (void)followTwitter {
+    openTwitter();
+}
+
 - (void)donate {
     openURL([NSURL URLWithString:@"https://paypal.me/aNosskirneh"]);
 }

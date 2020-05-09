@@ -94,6 +94,14 @@
             <string>About</string>
         </dict>
         <dict>
+            <key>cell</key>
+            <string>PSButtonCell</string>
+            <key>action</key>
+            <string>followTwitter</string>
+            <key>label</key>
+            <string>Follow me on Twitter</string>
+        </dict>
+        <dict>
             <key>action</key>
             <string>sendEmail</string>
             <key>cell</key>

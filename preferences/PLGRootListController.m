@@ -1,7 +1,7 @@
+#import "../SettingsKeys.h"
 #import <Preferences/Preferences.h>
 #import "../../TwitterStuff/Prompt.h"
-
-#define kPrefPath [NSString stringWithFormat:@"%@/Library/Preferences/%@", NSHomeDirectory(), @"se.nosskirneh.properlockgestures.plist"]
+#import <notify.h>
 
 @interface PLGRootListController : PSListController
 @end
@@ -40,18 +40,20 @@
 
     [dictionary setObject:value forKey:properties[@"key"]];
     [dictionary writeToFile:prefPath atomically:YES];
+
+    notify_post(kSettingsChanged);
 }
 
 - (void)donate {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://paypal.me/aNosskirneh"]];
+    openURL([NSURL URLWithString:@"https://paypal.me/aNosskirneh"]);
 }
 
 - (void)sendEmail {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"mailto:andreaskhenriksson@gmail.com?subject=ProperLockGestures"]];
+    openURL([NSURL URLWithString:@"mailto:andreaskhenriksson@gmail.com?subject=ProperLockGestures"]);
 }
 
 - (void)sourceCode {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/Nosskirneh/ProperLockGestures"]];
+    openURL([NSURL URLWithString:@"https://github.com/Nosskirneh/ProperLockGestures"]);
 }
 
 @end
@@ -69,16 +71,16 @@
     self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Cell" specifier:specifier];
     if (self) {
         UIFont *font = [UIFont fontWithName:@"HelveticaNeue-Thin" size:24];
-        
+
         _headerLabel = [[UILabel alloc] init];
         [_headerLabel setText:@"ProperLockGestures"];
         [_headerLabel setFont:font];
-        
+
         _subheaderLabel = [[UILabel alloc] init];
         [_subheaderLabel setText:@"by Andreas Henriksson"];
         [_subheaderLabel setTextColor:UIColor.grayColor];
         [_subheaderLabel setFont:[font fontWithSize:17]];
-        
+
         [self addSubview:_headerLabel];
         [self addSubview:_subheaderLabel];
     }
@@ -87,15 +89,15 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    
+
     [_headerLabel sizeToFit];
     [_subheaderLabel sizeToFit];
-    
+
     CGRect frame = _headerLabel.frame;
     frame.origin.y = 20;
     frame.origin.x = self.frame.size.width / 2 - _headerLabel.frame.size.width / 2;
     _headerLabel.frame = frame;
-    
+
     frame.origin.y += _headerLabel.frame.size.height;
     frame.origin.x = self.frame.size.width / 2 - _subheaderLabel.frame.size.width / 2;
     _subheaderLabel.frame = frame;

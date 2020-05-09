@@ -1,32 +1,25 @@
-#define prefPath [NSString stringWithFormat:@"%@/Library/Preferences/%@", NSHomeDirectory(), @"se.nosskirneh.properlockgestures.plist"]
+#import "SettingsKeys.h"
+#import <notify.h>
 
 static BOOL homescreenEnabled;
 static BOOL LSandNCEnabled;
 static BOOL notificationsEnabled;
 static BOOL passcodeEnabled;
 
-static void reloadPrefs() {
-    NSDictionary *prefs = [NSDictionary dictionaryWithContentsOfFile:prefPath];
+static void loadPreferences() {
+    NSDictionary *prefs = [NSDictionary dictionaryWithContentsOfFile:kPrefPath];
 
-    NSNumber *current = prefs[@"Homescreen"];
+    NSNumber *current = prefs[kHomescreen];
     homescreenEnabled = current ? [current boolValue] : YES;
 
-    current = prefs[@"Lockscreen"];
+    current = prefs[kLockscreen];
     LSandNCEnabled = current ? [current boolValue] : YES;
 
-    current = prefs[@"Notifications"];
+    current = prefs[kNotifications];
     notificationsEnabled = current ? [current boolValue] : YES;
 
-    current = prefs[@"Passcode"];
+    current = prefs[kPasscode];
     passcodeEnabled = current ? [current boolValue] : YES;
-}
-
-void updateSettings(CFNotificationCenterRef center,
-                    void *observer,
-                    CFStringRef name,
-                    const void *object,
-                    CFDictionaryRef userInfo) {
-    reloadPrefs();
 }
 
 
@@ -161,7 +154,7 @@ static void addGesture(id self, UIView *target) {
     - (void)setFrame:(CGRect)frame {
         %orig;
 
-        // If this would've gone directly to artworkViewController's viewDidLoad, 
+        // If this would've gone directly to artworkViewController's viewDidLoad,
         // LSArtworkView's frame is 0, 0, 0, 0 by that time.
         if (self == LSArtworkView && !gestureView)
             [artworkViewController addGestureView];
@@ -248,8 +241,16 @@ static void addGesture(id self, UIView *target) {
 
 
 %ctor {
-    reloadPrefs();
-    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &updateSettings, CFStringRef(@"se.nosskirneh.properlockgestures/preferencesChanged"), NULL, 0);
+    loadPreferences();
+
+    int _;
+    notify_register_dispatch(kSettingsChanged,
+        &_,
+        dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0l),
+        ^(int _) {
+            loadPreferences();
+        }
+    );
 
     Class pagedScrollViewClass = %c(SBFPagedScrollView);
     if (!pagedScrollViewClass)

@@ -48,6 +48,10 @@
     openTwitter();
 }
 
+- (void)discordServer {
+    openURL([NSURL URLWithString:@"https://discord.gg/7F3fSnH"]);
+}
+
 - (void)donate {
     openURL([NSURL URLWithString:@"https://paypal.me/aNosskirneh"]);
 }

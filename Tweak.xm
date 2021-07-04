@@ -1,3 +1,4 @@
+#import <UIKit/UIKit.h>
 #import "SettingsKeys.h"
 #import <notify.h>
 
@@ -186,6 +187,37 @@ static void addGesture(id self, UIView *target) {
     %end
 %end
 
+
+%group iOS14
+
+    @interface CSRemoteContentModalView : UIView
+    @property (nonatomic, retain) UIButton *backgroundDismissButton;
+    @end
+
+    @interface CSRemoteContentModalViewController : UIViewController
+    @property (nonatomic, retain) CSRemoteContentModalView *view;
+    @end
+
+    %hook CSRemoteContentModalViewController
+
+    - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+        %orig;
+        if (LSandNCEnabled)
+            handleTouches(touches);
+    }
+
+    - (void)loadView {
+        %orig;
+
+        // Hiding this button to prevent it from hijacking touches.
+        // It is always invisible either way.
+        self.view.backgroundDismissButton.hidden = YES;
+    }
+
+    %end
+%end
+
+
 // LS Passcode screen
 %hook SBUIPasscodeLockViewWithKeypad
 
@@ -239,7 +271,6 @@ static void addGesture(id self, UIView *target) {
 %end
 
 
-
 %ctor {
     loadPreferences();
 
@@ -271,6 +302,9 @@ static void addGesture(id self, UIView *target) {
           LockScreenDateViewController = dateViewControllerClass,
           MediaControlsView = mediaControlsViewClass,
           ChargingViewController = chargingViewControllerClass);
+
+    if (%c(CSRemoteContentModalViewController))
+        %init(iOS14);
 
     if ([pagedScrollViewClass instancesRespondToSelector:@selector(_layoutPages)])
         %init(iOS10LS, PagedScrollView = pagedScrollViewClass);
